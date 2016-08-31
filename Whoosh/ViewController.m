@@ -52,31 +52,26 @@
     if (self.sentences.count == 2) {
         [self.firstLabel setText: self.sentences[0]];
         [self.secondLabel setText: self.sentences[1]];
-        [sender setTitle:[NSString stringWithFormat:@"Please type sentence in field above & then tap here"] forState:UIControlStateNormal];
         [self.sentences removeAllObjects];
         
-        CGFloat currentConstant = self.firstLabelTopConstraint.constant;
-        CGFloat targetConstant = currentConstant + self.view.frame.size.height;
-        
-        [UIView animateWithDuration:5
+        CGFloat firstLabelInitialConstant = self.firstLabelTopConstraint.constant;
+        CGFloat targetConstant = firstLabelInitialConstant + self.view.frame.size.height;
+        NSString *stringReset = [NSString stringWithFormat:@""];
+        [sender setTitle:stringReset forState:UIControlStateNormal];
+
+        [UIView animateWithDuration:10
                          animations:^{
                              self.firstLabelTopConstraint.constant = targetConstant;
-                             self.firstLabel.alpha = 0;
                              [self.view layoutSubviews];
                          }
-                         completion:^(BOOL finished) {
-                             if (finished) {
-                                 NSLog(@"All finished! ");
-                             } else {
-                                 NSLog(@"Whoa!");
-                             };
-                         }
          ];
+        
     } else {
         NSString *sentenceForLabel = [NSString stringWithFormat:@"%@", _textField.text];
         [self.sentences addObject:sentenceForLabel];
         NSString *tap = [NSString stringWithFormat:@"Sentences stored:  %@.\n\n", @(self.sentences.count)];
         [sender setTitle:tap forState:UIControlStateNormal];
+        [self.textField setText:@""];
     }
 }
 @end
