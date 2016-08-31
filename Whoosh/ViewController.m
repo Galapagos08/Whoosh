@@ -15,6 +15,8 @@
 
 - (IBAction)button:(UIButton *)sender;
 
+@property (strong, nonatomic) NSMutableArray *sentences;
+
 @property (strong, nonatomic) IBOutlet UILabel *firstLabel;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *firstLabelTopConstraint;
 
@@ -28,6 +30,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
+    self.sentences = [[NSMutableArray alloc] init];
+
 }
 
 
@@ -45,17 +49,34 @@
 }
 
 - (IBAction)button:(UIButton *)sender {
-    NSMutableArray *sentences = [NSMutableArray array];
-//    NSInteger lastIndex = sentences.count;
- 
-    NSString *sentenceForLabel = [NSString stringWithFormat:@"%@", _textField.text];
-    [sentences addObject:sentenceForLabel];
- 
-    NSString *tap = [NSString stringWithFormat:@"You have 1 sentence stored.\n\n"];
-    [sender setTitle:tap forState:UIControlStateNormal];
-    [self.firstLabel setText:sentences[0]];
-   
-    
-    
+    if (self.sentences.count == 2) {
+        [self.firstLabel setText: self.sentences[0]];
+        [self.secondLabel setText: self.sentences[1]];
+        [sender setTitle:[NSString stringWithFormat:@"Please type sentence in field above & then tap here"] forState:UIControlStateNormal];
+        [self.sentences removeAllObjects];
+        
+        CGFloat currentConstant = self.firstLabelTopConstraint.constant;
+        CGFloat targetConstant = currentConstant + self.view.frame.size.height;
+        
+        [UIView animateWithDuration:5
+                         animations:^{
+                             self.firstLabelTopConstraint.constant = targetConstant;
+                             self.firstLabel.alpha = 0;
+                             [self.view layoutSubviews];
+                         }
+                         completion:^(BOOL finished) {
+                             if (finished) {
+                                 NSLog(@"All finished! ");
+                             } else {
+                                 NSLog(@"Whoa!");
+                             };
+                         }
+         ];
+    } else {
+        NSString *sentenceForLabel = [NSString stringWithFormat:@"%@", _textField.text];
+        [self.sentences addObject:sentenceForLabel];
+        NSString *tap = [NSString stringWithFormat:@"Sentences stored:  %@.\n\n", @(self.sentences.count)];
+        [sender setTitle:tap forState:UIControlStateNormal];
+    }
 }
 @end
