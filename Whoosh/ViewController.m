@@ -12,16 +12,17 @@
 
 
 @property (strong, nonatomic) IBOutlet UITextField *textField;
-
+@property (strong, nonatomic) IBOutlet UIButton *sender;
 - (IBAction)button:(UIButton *)sender;
+
 
 @property (strong, nonatomic) NSMutableArray *sentences;
 
 @property (strong, nonatomic) IBOutlet UILabel *firstLabel;
-@property (strong, nonatomic) IBOutlet NSLayoutConstraint *firstLabelTopConstraint;
+@property (strong, nonatomic) IBOutlet NSLayoutConstraint *label1Constraint;
 
 @property (strong, nonatomic) IBOutlet UILabel *secondLabel;
-@property (strong, nonatomic) IBOutlet NSLayoutConstraint *secondLabelTopConstraint;
+@property (strong, nonatomic) IBOutlet NSLayoutConstraint *secondLabelConstraint;
 
 @end
 
@@ -29,16 +30,52 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
     self.sentences = [[NSMutableArray alloc] init];
-
+    self.sender = [[UIButton alloc] init];
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [self resetState];
+}
+
+- (void) resetState {
+    [self.firstLabel setText:nil];
+    [self.secondLabel setText:nil];
+    [self.sender setTitle:@"" forState:UIControlStateNormal];
+    self.textField.hidden = NO;
+    self.sender.hidden = NO;
+}
+
+- (void)animateLabels {
+    self.textField.hidden = YES;
+    self.sender.hidden = YES;
+    CGFloat firstLabelInitialConstant = self.label1Constraint.constant;
+    CGFloat firstLabelTargetConstant = firstLabelInitialConstant + self.view.frame.size.width + 65;
+    CGFloat secondLabelInitialConstant = self.secondLabelConstraint.constant;
+    CGFloat secondLabelTargetConstant = secondLabelInitialConstant + self.view.frame.size.height + 30;
+    [UIView animateWithDuration:10
+                     animations:^{
+                         self.label1Constraint.constant = firstLabelTargetConstant;
+                         self.secondLabelConstraint.constant = secondLabelTargetConstant;
+                         [self.view layoutSubviews];
+                     }
+                     completion:^(BOOL finished) {
+                         if (finished) {
+                             self.label1Constraint.constant = firstLabelInitialConstant;
+                             self.secondLabelConstraint.constant = secondLabelInitialConstant;
+                             [self resetState];
+                         } else {
+                             NSLog(@"Whoa!");
+                         };
+                     }
+     ];
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
+
 - (void)textFieldDidEndEditing:(UITextField *)textField reason:(UITextFieldDidEndEditingReason)reason {
     NSLog(@"'%@' in %s at line %d", textField.text, __PRETTY_FUNCTION__, __LINE__);
 }
@@ -53,19 +90,8 @@
         [self.firstLabel setText: self.sentences[0]];
         [self.secondLabel setText: self.sentences[1]];
         [self.sentences removeAllObjects];
-        
-        CGFloat firstLabelInitialConstant = self.firstLabelTopConstraint.constant;
-        CGFloat targetConstant = firstLabelInitialConstant + self.view.frame.size.height;
-        NSString *stringReset = [NSString stringWithFormat:@""];
-        [sender setTitle:stringReset forState:UIControlStateNormal];
-
-        [UIView animateWithDuration:10
-                         animations:^{
-                             self.firstLabelTopConstraint.constant = targetConstant;
-                             [self.view layoutSubviews];
-                         }
-         ];
-        
+        [self animateLabels];
+        [sender setTitle:@"" forState:UIControlStateNormal];
     } else {
         NSString *sentenceForLabel = [NSString stringWithFormat:@"%@", _textField.text];
         [self.sentences addObject:sentenceForLabel];
